@@ -1,33 +1,24 @@
 #!/usr/bin/python3
-"""Returns to-do list information for a given employee ID."""
+""" Export api to csv"""
+import csv
 import requests
-from sys import argv
+import sys
 
+if __name__ == '__main__':
+    user = sys.argv[1]
+    url_user = 'https://jsonplaceholder.typicode.com/users/' + user
+    res = requests.get(url_user)
+    """ANYTHING"""
+    user_name = res.json().get('username')
+    task = url_user + '/todos'
+    res = requests.get(task)
+    tasks = res.json()
 
-def display():
-    """returns API data"""
-    users = requests.get("http://jsonplaceholder.typicode.com/users")
-    for user in users.json():
-        if user.get('id') == int(argv[1]):
-            EMPLOYEE_NAME = (user.get('name'))
-            break
-    TOTAL_NUM_OF_TASKS = 0
-    NUMBER_OF_DONE_TASKS = 0
-    TASK_TITLE = []
-
-    todos = requests.get("http://jsonplaceholder.typicode.com/todos")
-    for task in todos.json():
-        if task.get('userId') == int(argv[1]):
-            TOTAL_NUM_OF_TASKS += 1
-            if task.get('completed') is True:
-                NUMBER_OF_DONE_TASKS += 1
-                TASK_TITLE.append(task.get('title'))
-
-    print("Employee {} is done with tasks({}/{}):"
-          .format(EMPLOYEE_NAME, NUMBER_OF_DONE_TASKS, TOTAL_NUM_OF_TASKS))
-    for task in TASK_TITLE:
-        print("\t {}".format(task))
-
-
-if __name__ == "__main__":
-    display()
+    with open('{}.csv'.format(user), 'w') as csvfile:
+        for task in tasks:
+            completed = task.get('completed')
+            """Complete"""
+            title_task = task.get('title')
+            """Done"""
+            csvfile.write('"{}","{}","{}","{}"\n'.format(
+                user, user_name, completed, title_task))
